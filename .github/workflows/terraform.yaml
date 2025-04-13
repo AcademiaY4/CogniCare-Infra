@@ -9,13 +9,27 @@ jobs:
   terraform:
     runs-on: ubuntu-latest
 
+    env:
+      TF_VAR_project_id: ${{ secrets.PROJECT_ID }}
+      TF_VAR_region: ${{ secrets.REGION }}
+      TF_VAR_zone: ${{ secrets.ZONE }}
+      TF_VAR_cluster_name: ${{ secrets.CLUSTER_NAME }}
+      TF_VAR_network_name: ${{ secrets.NETWORK_NAME }}
+      TF_VAR_subnetwork_name: ${{ secrets.SUBNETWORK_NAME }}
+      TF_VAR_ip_cidr_range: ${{ secrets.IP_CIDR_RANGE }}
+      TF_VAR_node_count: ${{ secrets.NODE_COUNT }}
+      TF_VAR_machine_type: ${{ secrets.MACHINE_TYPE }}
+      TF_VAR_disk_type: ${{ secrets.DISK_TYPE }}
+      TF_VAR_disk_size_gb: ${{ secrets.DISK_SIZE_GB }}
+      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: 'Authenticate to GCP'
-      id: 'auth'
-      uses: 'google-github-actions/auth@v2'
+    - name: Authenticate to GCP
+      id: auth
+      uses: google-github-actions/auth@v2
       with:
         credentials_json: '${{ secrets.GCP_SA_KEY }}'
 
@@ -28,31 +42,7 @@ jobs:
           -backend-config="bucket=${{ secrets.TF_BUCKET }}"
 
     - name: Terraform Planning
-      run: |
-        terraform plan \
-          -var="project_id=${{ secrets.PROJECT_ID }}" \
-          -var="region=${{ secrets.REGION }}" \
-          -var="zone=${{ secrets.ZONE }}" \
-          -var="cluster_name=${{ secrets.CLUSTER_NAME }}" \
-          -var="network_name=${{ secrets.NETWORK_NAME }}" \
-          -var="subnetwork_name=${{ secrets.SUBNETWORK_NAME }}" \
-          -var="ip_cidr_range=${{ secrets.IP_CIDR_RANGE }}" \
-          -var="node_count=${{ secrets.NODE_COUNT }}" \
-          -var="machine_type=${{ secrets.MACHINE_TYPE }}" \
-          -var="disk_type=${{ secrets.DISK_TYPE }}" \
-          -var="disk_size_gb=${{ secrets.DISK_SIZE_GB }}"
+      run: terraform plan
 
     - name: Terraform Apply
-      run: |
-        terraform apply -auto-approve \
-          -var="project_id=${{ secrets.PROJECT_ID }}" \
-          -var="region=${{ secrets.REGION }}" \
-          -var="zone=${{ secrets.ZONE }}" \
-          -var="cluster_name=${{ secrets.CLUSTER_NAME }}" \
-          -var="network_name=${{ secrets.NETWORK_NAME }}" \
-          -var="subnetwork_name=${{ secrets.SUBNETWORK_NAME }}" \
-          -var="ip_cidr_range=${{ secrets.IP_CIDR_RANGE }}" \
-          -var="node_count=${{ secrets.NODE_COUNT }}" \
-          -var="machine_type=${{ secrets.MACHINE_TYPE }}" \
-          -var="disk_type=${{ secrets.DISK_TYPE }}" \
-          -var="disk_size_gb=${{ secrets.DISK_SIZE_GB }}"
+      run: terraform apply -auto-approve
