@@ -1,0 +1,39 @@
+name: 'Terraform Infra Provisioning'
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Terraform
+      uses: hashicorp/setup-terraform@v3
+
+    - name: Terraform Init
+      run: |
+        terraform init \
+          -backend-config="bucket=${{ secrets.TF_BUCKET }}"
+
+    - name: Terraform Apply
+      run: |
+        terraform apply -auto-approve \
+          -var="project_id=${{ secrets.PROJECT_ID }}" \
+          -var="region=${{ secrets.REGION }}" \
+          -var="zone=${{ secrets.ZONE }}" \
+          -var="cluster_name=${{ secrets.CLUSTER_NAME }}" \
+          -var="network_name=${{ secrets.NETWORK_NAME }}" \
+          -var="subnetwork_name=${{ secrets.SUBNETWORK_NAME }}" \
+          -var="ip_cidr_range=${{ secrets.IP_CIDR_RANGE }}" \
+          -var="node_count=${{ secrets.NODE_COUNT }}" \
+          -var="machine_type=${{ secrets.MACHINE_TYPE }}" \
+          -var="disk_type=${{ secrets.DISK_TYPE }}" \
+          -var="disk_size_gb=${{ secrets.DISK_SIZE_GB }}"
+      env:
+        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}

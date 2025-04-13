@@ -1,0 +1,12 @@
+# Terraform state files
+*.tfstate
+*.tfstate.backup
+
+# .terraform directory
+.terraform/
+
+# Ignore backend config file
+backend.conf
+
+#terraform tfvars
+terraform.tfvars
