@@ -13,6 +13,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: 'Authenticate to GCP'
+      id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
     - name: Set up Terraform
       uses: hashicorp/setup-terraform@v3
 
@@ -20,6 +26,21 @@ jobs:
       run: |
         terraform init \
           -backend-config="bucket=${{ secrets.TF_BUCKET }}"
+
+    - name: Terraform Planning
+      run: |
+        terraform plan \
+          -var="project_id=${{ secrets.PROJECT_ID }}" \
+          -var="region=${{ secrets.REGION }}" \
+          -var="zone=${{ secrets.ZONE }}" \
+          -var="cluster_name=${{ secrets.CLUSTER_NAME }}" \
+          -var="network_name=${{ secrets.NETWORK_NAME }}" \
+          -var="subnetwork_name=${{ secrets.SUBNETWORK_NAME }}" \
+          -var="ip_cidr_range=${{ secrets.IP_CIDR_RANGE }}" \
+          -var="node_count=${{ secrets.NODE_COUNT }}" \
+          -var="machine_type=${{ secrets.MACHINE_TYPE }}" \
+          -var="disk_type=${{ secrets.DISK_TYPE }}" \
+          -var="disk_size_gb=${{ secrets.DISK_SIZE_GB }}"
 
     - name: Terraform Apply
       run: |
@@ -35,5 +56,3 @@ jobs:
           -var="machine_type=${{ secrets.MACHINE_TYPE }}" \
           -var="disk_type=${{ secrets.DISK_TYPE }}" \
           -var="disk_size_gb=${{ secrets.DISK_SIZE_GB }}"
-      env:
-        GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
